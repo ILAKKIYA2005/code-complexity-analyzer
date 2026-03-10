@@ -27,4 +27,3 @@ This tool helps developers and students quickly understand how efficient their c
 
 ---
 
-## 📂 Project Structure
