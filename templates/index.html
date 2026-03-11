@@ -18,31 +18,35 @@ text-align:center;
 
 h1{
 color:#3b82f6;
-margin-top:40px;
+}
+
+h3{
+color:#60a5fa;
+}
+
+#editor{
+width:80%;
+height:300px;
+margin:auto;
+border-radius:10px;
+border:1px solid #334155;
 }
 
 select{
-padding:8px;
+padding:10px;
+margin:10px;
 border-radius:5px;
 border:none;
 }
 
-textarea{
-width:70%;
-height:250px;
-background:#1e293b;
-color:#60a5fa;
-border:none;
-padding:15px;
-border-radius:8px;
-font-size:15px;
+input[type="file"]{
+color:white;
 }
 
 button{
-margin-top:20px;
-padding:12px 28px;
-background:#3b82f6;
+background:#2563eb;
 color:white;
+padding:12px 25px;
 border:none;
 border-radius:6px;
 cursor:pointer;
@@ -50,19 +54,23 @@ font-size:16px;
 }
 
 button:hover{
-background:#2563eb;
-}
-
-.result{
-margin-top:20px;
-font-size:22px;
-color:#60a5fa;
+background:#1d4ed8;
 }
 
 canvas{
-margin-top:40px;
-width:650px !important;
-height:400px !important;
+background:white;
+border-radius:10px;
+margin-top:30px;
+}
+
+.result-box{
+margin-top:30px;
+padding:20px;
+background:#1e293b;
+border-radius:10px;
+width:60%;
+margin-left:auto;
+margin-right:auto;
 }
 
 </style>
@@ -71,99 +79,123 @@ height:400px !important;
 
 <body>
 
-<h1>Code Complexity Analyzer</h1>
+<h1>🚀 Code Complexity Analyzer</h1>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data" onsubmit="submitCode()">
 
 <select name="language">
+
 <option value="python">Python</option>
 <option value="java">Java</option>
 <option value="cpp">C++</option>
+
 </select>
 
 <br><br>
 
-<textarea name="code" placeholder="Paste your code here..."></textarea>
+<h3>Upload Code File</h3>
 
-<br>
+<input type="file" name="file">
+
+<br><br>
+
+<h3>OR Write Code</h3>
+
+<div id="editor"></div>
+
+<input type="hidden" name="code" id="codeInput">
+
+<br><br>
 
 <button type="submit">Analyze Code</button>
 
 </form>
 
-<div class="result">
-{{ result }}
+{% if result %}
+
+<div class="result-box">
+
+<h2>Time Complexity : {{result.complexity}}</h2>
+
+<p>Loops Found : {{result.loops}}</p>
+
+<p>Conditions Found : {{result.conditions}}</p>
+
+<h3>Explanation</h3>
+
+<p>{{result.explanation}}</p>
+
 </div>
 
-<canvas id="complexityChart"></canvas>
+<canvas id="complexityChart" width="600" height="300"></canvas>
 
 <script>
 
-let type="{{ complexity }}"
-let data=[]
-let label=""
+var xValues = {{result.x | tojson}};
+var yValues = {{result.y | tojson}};
 
-if(type=="constant"){
-data=[1,1,1,1,1,1,1,1,1,1]
-label="O(1)"
-}
+new Chart(document.getElementById("complexityChart"), {
 
-else if(type=="linear"){
-data=[1,2,3,4,5,6,7,8,9,10]
-label="O(n)"
-}
+type: "line",
 
-else if(type=="quadratic"){
-data=[1,4,9,16,25,36,49,64,81,100]
-label="O(n²)"
-}
-
-else if(type=="cubic"){
-data=[1,8,27,64,125,216,343,512,729,1000]
-label="O(n³)"
-}
-
-else{
-data=[0,0,0,0,0,0,0,0,0,0]
-label="No Data"
-}
-
-const ctx=document.getElementById("complexityChart")
-
-new Chart(ctx,{
-type:"line",
-data:{
-labels:[1,2,3,4,5,6,7,8,9,10],
-datasets:[
-{
-label:label,
-data:data,
-borderWidth:3,
-tension:0.3
-}
-]
+data: {
+labels: xValues,
+datasets: [{
+label: "Time Complexity Growth",
+data: yValues,
+borderColor: "blue",
+borderWidth: 3,
+fill:false
+}]
 },
+
 options:{
-plugins:{
-legend:{
-labels:{
-color:"white"
+responsive:true
 }
+
+});
+
+</script>
+
+{% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.js"></script>
+
+<script>
+
+var editor;
+
+require.config({
+paths: {
+'vs':'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs'
 }
-},
-scales:{
-x:{
-ticks:{color:"white"}
-},
-y:{
-ticks:{color:"white"}
+});
+
+require(['vs/editor/editor.main'], function () {
+
+editor = monaco.editor.create(document.getElementById('editor'), {
+
+value: `# Example Code
+for i in range(10):
+    for j in range(10):
+        print(i,j)
+`,
+
+language: 'python',
+
+theme: 'vs-dark'
+
+});
+
+});
+
+function submitCode(){
+
+document.getElementById("codeInput").value = editor.getValue();
+
 }
-}
-}
-})
 
 </script>
 
 </body>
-
 </html>

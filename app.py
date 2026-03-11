@@ -3,32 +3,26 @@ from analyzer import analyze_code
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET","POST"])
+@app.route("/", methods=["GET", "POST"])
 def index():
 
-    result=""
-    complexity=""
+    result = None
 
-    if request.method=="POST":
+    if request.method == "POST":
 
-        code=request.form["code"]
-        language=request.form["language"]
+        language = request.form["language"]
 
-        result=analyze_code(code,language)
+        # check if file uploaded
+        file = request.files.get("file")
 
-        if "O(1)" in result:
-            complexity="constant"
-
-        elif "O(n)" in result:
-            complexity="linear"
-
-        elif "O(n^2)" in result:
-            complexity="quadratic"
-
+        if file and file.filename != "":
+            code = file.read().decode("utf-8")
         else:
-            complexity="cubic"
+            code = request.form["code"]
 
-    return render_template("index.html",result=result,complexity=complexity)
+        result = analyze_code(code, language)
 
-if __name__=="__main__":
+    return render_template("index.html", result=result)
+
+if __name__ == "__main__":
     app.run(debug=True)
