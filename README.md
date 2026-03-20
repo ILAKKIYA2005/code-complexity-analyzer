@@ -116,10 +116,10 @@ Time Complexity: O(n²)
 
 ## Future Improvements
 
-* 🔍 Better complexity detection (O(log n), recursion)
-* 🧾 User history storage
-* 🤖 AI-based code explanation
-* 🌍 Multi-language support
+* Better complexity detection (O(log n), recursion)
+* User history storage
+* AI-based code explanation
+* Multi-language support
 
 ---
 
